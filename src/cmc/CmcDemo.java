@@ -6,7 +6,7 @@ import java.awt.Color;
  * Obtiene los 2 primeros y expande los contiguos entre ambos.
  * Primero expande eje x, segundo expande el eje y.
  * El recorrido es secuencial (conforme al orden de marcado de los puntos en el mapa)
- * Invoca al método dibujar para cerrar el ciclo.
+ * Invoca al metodo dibujar para cerrar el ciclo.
  * No contempla las densidades definidas en la matriz (mapa)
  */
 import java.util.ArrayList;
