@@ -9,7 +9,7 @@ public class Inicio {
 	            CanvasFrame frame = new CanvasFrame("Progra III");
 	            frame.configurar();
 	            frame.presentar();
-	          };
+	          }; 
 		});
 	}
 }
