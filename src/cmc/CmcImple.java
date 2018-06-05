@@ -9,10 +9,6 @@ package cmc;
  * 		M�todo run(MapaInfo mapa)
  */
 
-import java.awt.Color;
-import java.util.List;
-
-import graficos.Punto;
 import mapa.MapaInfo;
 import tda.CmcSC;
 
@@ -23,10 +19,5 @@ public class CmcImple extends CmcSC {
 	public void run(MapaInfo mapa) {
 		this.mapa = mapa;
 		new CmcDemo(mapa, this);
-	}
-
-	public void dibujarCamino(List<Punto> listaPuntos, Color red) {
-		// TODO Auto-generated method stub
-		
 	}
 }
