@@ -33,11 +33,15 @@ public class Nodo {
 	}
 	
 	public boolean fueVisitado() {
-		return this.fueVisitado();
+		return this.FueVisitado;
 	}
 
 	public int getCostoAcumulado() {
 		return this.CostoAcumulado;
+	}
+
+	public Punto getPredecesor() {
+		return this.PuntoPredecesor;
 	}
 
 }
