@@ -16,8 +16,28 @@ public class Nodo {
 		this.FueVisitado = fueVisitado;
 	}
 
+	public Nodo(Punto punto) {
+		this.PuntoActual = punto;
+	}
+
 	public Punto getPunto() {
 		return this.PuntoActual;
+	}
+	
+	public void SetPredecesor(Punto predecesor){
+		this.PuntoPredecesor = predecesor;
+	}
+	
+	public void SetCostoAcumulado(int costo){
+		this.CostoAcumulado = costo;
+	}
+	
+	public boolean fueVisitado() {
+		return this.fueVisitado();
+	}
+
+	public int getCostoAcumulado() {
+		return this.CostoAcumulado;
 	}
 
 }
