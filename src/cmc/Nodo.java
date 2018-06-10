@@ -8,16 +8,21 @@ public class Nodo {
 	private Punto PuntoPredecesor;
 	private int CostoAcumulado;
 	private boolean FueVisitado;
+	private boolean CostoInfinito;
 
 	public Nodo(Punto puntoActual, Punto puntoPredecesor, int costoAcumulado, boolean fueVisitado) {
 		this.PuntoActual = puntoActual;
 		this.PuntoPredecesor = puntoPredecesor;
 		this.CostoAcumulado = costoAcumulado;
 		this.FueVisitado = fueVisitado;
+		this.CostoInfinito = false;
 	}
 
 	public Nodo(Punto punto) {
 		this.PuntoActual = punto;
+		this.CostoAcumulado = 0;
+		this.CostoInfinito = true;
+		this.FueVisitado = false;
 	}
 
 	public Punto getPunto() {
@@ -30,6 +35,7 @@ public class Nodo {
 	
 	public void SetCostoAcumulado(int costo){
 		this.CostoAcumulado = costo;
+		this.CostoInfinito = false;
 	}
 	
 	public boolean fueVisitado() {
@@ -42,6 +48,14 @@ public class Nodo {
 
 	public Punto getPredecesor() {
 		return this.PuntoPredecesor;
+	}
+
+	public void Visitar() {
+		this.FueVisitado = true;		
+	}
+
+	public boolean tieneCostoInfinito() {
+		return this.CostoInfinito;
 	}
 
 }
