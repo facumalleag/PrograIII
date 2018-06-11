@@ -43,6 +43,7 @@ public class CmcDemo {
 		}
 	}
 	
+	//Si no existe un camino de a a b, devuelve una lista vacía
 	private List<Punto> expandirPuntosContiguos(Punto a, Punto b) {
 		List<Punto> listaPuntos = new ArrayList<Punto>();
 		List<Nodo> nodosCalculados = new ArrayList<Nodo>();
@@ -55,7 +56,7 @@ public class CmcDemo {
 		//List<Punto> listaauxi = new ArrayList<Punto>();
 		
 		//Mientras no llegué al punto final o mientras no visité todos los posibles
-		while (!nodoMenorCosto.getPunto().igual(b) && nodoMenorCosto != null)
+		while (nodoMenorCosto != null && !nodoMenorCosto.getPunto().igual(b))
 		{
 			//listaauxi.add(nodoMenorCosto.getPunto());
 			//System.out.println("(" + nodoMenorCosto.getPunto().x + ","+ nodoMenorCosto.getPunto().y+ ")" 
@@ -80,7 +81,8 @@ public class CmcDemo {
 			}
 			
 			nodoMenorCosto = GetNodoMenorCosto(nodosCalculados);
-			nodoMenorCosto.Visitar();
+			if (nodoMenorCosto != null)
+				nodoMenorCosto.Visitar();
 		}
 		
 		if (nodoMenorCosto != null)
@@ -153,17 +155,6 @@ public class CmcDemo {
 					puntosEvaluados.add(punto);
 			}
 		}
-		/*
-		x = x-1;
-		puntosEvaluados.add(new Punto(x,y));
-		x = x+2;
-		puntosEvaluados.add(new Punto(x,y));
-		x = a.x;
-		y = y-1;
-		puntosEvaluados.add(new Punto(x,y));
-		y = y+2;
-		puntosEvaluados.add(new Punto(x,y));
-		*/
 		for (Punto puntoEvaluado : puntosEvaluados)
 		{
 			//Si el punto pertenece al mapa y su densidad no es inquebrantable se agrega a adyacentes
