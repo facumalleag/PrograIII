@@ -20,6 +20,7 @@ public class CmcDemo {
 	private MapaInfo mapa;
 	private CmcImple cmc;
 	private static final int COSTO_BASE = 10;
+	private static final int DENSIDAD_INQUEBRANTABLE = 4;
 	
 	public CmcDemo(MapaInfo mapa, CmcImple cmc) {
 		this.mapa = mapa;
@@ -44,16 +45,22 @@ public class CmcDemo {
 	
 	private List<Punto> expandirPuntosContiguos(Punto a, Punto b) {
 		List<Punto> listaPuntos = new ArrayList<Punto>();
-		
 		List<Nodo> nodosCalculados = new ArrayList<Nodo>();
 		
 		//Agrego el punto de inicio a la lista de nodos
 		int costoInicial = COSTO_BASE * (this.mapa.getDensidad(a) + 1);
 		nodosCalculados.add(new Nodo(a,a,costoInicial,true));
 		Nodo nodoMenorCosto = nodosCalculados.get(0);
+
+		//List<Punto> listaauxi = new ArrayList<Punto>();
 		
+		//Mientras no llegué al punto final o mientras no visité todos los posibles
 		while (!nodoMenorCosto.getPunto().igual(b) && nodoMenorCosto != null)
 		{
+			//listaauxi.add(nodoMenorCosto.getPunto());
+			//System.out.println("(" + nodoMenorCosto.getPunto().x + ","+ nodoMenorCosto.getPunto().y+ ")" 
+			//+ " " + this.mapa.getDensidad(nodoMenorCosto.getPunto()));
+
 			List<Punto> adyacentes = this.GetAdyacentes(nodoMenorCosto.getPunto());
 			
 			for (Punto adyacente : adyacentes)
@@ -74,32 +81,14 @@ public class CmcDemo {
 			
 			nodoMenorCosto = GetNodoMenorCosto(nodosCalculados);
 			nodoMenorCosto.Visitar();
-			System.out.println("(" + nodoMenorCosto.getPunto().x + ","+ nodoMenorCosto.getPunto().y+ ")");
 		}
 		
 		if (nodoMenorCosto != null)
 		{
 			listaPuntos = this.ObtenerCamino(nodosCalculados,nodoMenorCosto);
 		}	
-		
-		/*if (a.x < b.x) {
-			for(int x = a.x ; x < b.x; x++) {
-				listaPuntos.add(new Punto(x, a.y));
-			}
-		} else {
-			for(int x = a.x ; x > b.x; x--) {
-				listaPuntos.add(new Punto(x, a.y));
-			}
-		}
-		if (a.y < b.y) {
-			for(int y = a.y ; y < b.y; y++) {
-				listaPuntos.add(new Punto(b.x, y));
-			}
-		} else {
-			for(int y = a.y ; y > b.y; y--) {
-				listaPuntos.add(new Punto(b.x, y));
-			}
-		}*/
+
+		//cmc.dibujarCamino(listaauxi,Color.magenta);
 		return listaPuntos;
 	}
 
@@ -154,6 +143,17 @@ public class CmcDemo {
 		List<Punto> puntosEvaluados = new ArrayList<Punto>();
 		int x = a.x;
 		int y = a.y;
+		
+		for (int i = x-1; i < x+2; i++)
+		{
+			for (int o = y-1; o < y+2; o++)
+			{
+				Punto punto = new Punto(i,o);
+				if (!punto.igual(a))
+					puntosEvaluados.add(punto);
+			}
+		}
+		/*
 		x = x-1;
 		puntosEvaluados.add(new Punto(x,y));
 		x = x+2;
@@ -163,11 +163,13 @@ public class CmcDemo {
 		puntosEvaluados.add(new Punto(x,y));
 		y = y+2;
 		puntosEvaluados.add(new Punto(x,y));
-		
+		*/
 		for (Punto puntoEvaluado : puntosEvaluados)
 		{
+			//Si el punto pertenece al mapa y su densidad no es inquebrantable se agrega a adyacentes
 			if (puntoEvaluado.x < this.mapa.LARGO && puntoEvaluado.x > 0 &&
-				puntoEvaluado.y < this.mapa.ALTO && puntoEvaluado.y > 0) 
+				puntoEvaluado.y < this.mapa.ALTO && puntoEvaluado.y > 0 &&
+				this.mapa.getDensidad(puntoEvaluado) != DENSIDAD_INQUEBRANTABLE ) 
 				adyacentes.add(puntoEvaluado);
 		}
 
