@@ -1,5 +1,7 @@
 package cmc;
 
+import java.util.Comparator;
+
 import graficos.Punto;
 
 public class Nodo {
@@ -8,6 +10,8 @@ public class Nodo {
 	private Punto PuntoPredecesor;
 	private int CostoAcumulado;
 	private boolean FueVisitado;
+	//El costo infinito sirve para diferenciar a aquellos que tienen costo 0 porque no fueron 
+	//explorados o porque su costo realmente es 0
 	private boolean CostoInfinito;
 
 	public Nodo(Punto puntoActual, Punto puntoPredecesor, int costoAcumulado, boolean fueVisitado) {
@@ -58,4 +62,15 @@ public class Nodo {
 		return this.CostoInfinito;
 	}
 
+}
+
+class cmpNodos implements Comparator<Nodo> {
+    @Override
+    public int compare(Nodo n1, Nodo n2) {
+        if (n1.getCostoAcumulado() < n2.getCostoAcumulado())
+        	return -1;
+        if (n1.getCostoAcumulado() > n2.getCostoAcumulado())
+        	return 1;
+        return 0;
+    }
 }

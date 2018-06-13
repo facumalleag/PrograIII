@@ -21,17 +21,6 @@ import graficos.Punto;
 import mapa.MapaInfo;
 import cmc.Nodo;
 
-class cmpNodos implements Comparator<Nodo> {
-    @Override
-    public int compare(Nodo n1, Nodo n2) {
-        if (n1.getCostoAcumulado() < n2.getCostoAcumulado())
-        	return -1;
-        if (n1.getCostoAcumulado() > n2.getCostoAcumulado())
-        	return 1;
-        return 0;
-    }
-}
-
 
 public class CmcDemo {
 	private MapaInfo mapa;
@@ -60,68 +49,51 @@ public class CmcDemo {
 		}
 	}
 	
-	//Si no existe un camino de a a b, devuelve una lista vacía
+	//Post: Si no existe un camino de a a b, devuelve una lista vacía
 	private List<Punto> expandirPuntosContiguos(Punto a, Punto b) {
 		List<Punto> listaPuntos = new ArrayList<Punto>();
-		//List<Nodo> nodosCalculados = new ArrayList<Nodo>();
 		cmpNodos comparador = new cmpNodos();
 		PriorityQueue<Nodo> colaNodosExpandidos = new PriorityQueue<Nodo>(comparador);
-		PriorityQueue<Nodo> nodosVisitados = new PriorityQueue<Nodo>(comparador);
 		Map<Punto, Nodo> map = new HashMap<Punto,Nodo>();
-		
-		
-		//Agrego el punto de inicio a la lista de nodos
+				
+		//Agrego el punto de inicio al hash de nodos
 		int costoInicial = COSTO_BASE * (this.mapa.getDensidad(a) + 1);
 		Nodo nodoMenorCosto = new Nodo(a,a,costoInicial,true);
 		map.put(a, nodoMenorCosto);
-		nodosVisitados.add(nodoMenorCosto);
 
-		//List<Punto> listaauxi = new ArrayList<Punto>();
-		//int i = 0;
 		//Mientras no llegué al punto final o mientras no visité todos los posibles
 		while (nodoMenorCosto != null && !nodoMenorCosto.getPunto().igual(b))
 		{
-			//listaauxi.add(nodoMenorCosto.getPunto());
-			System.out.println("(" + nodoMenorCosto.getPunto().x + ","+ nodoMenorCosto.getPunto().y+ ")" 
-			+ " " + this.mapa.getDensidad(nodoMenorCosto.getPunto()) + " " + nodoMenorCosto.getCostoAcumulado());
-
 			List<Punto> adyacentes = this.GetAdyacentes(nodoMenorCosto.getPunto());
 			
 			for (Punto adyacente : adyacentes)
 			{
-				//if (!PuntoFueVisitado(adyacente,colaNodosExpandidos))
-				//{
-					Nodo nodo = GetNodoByPunto(adyacente, colaNodosExpandidos, map);
-					if (!nodo.fueVisitado()){
-						int costo = COSTO_BASE * (this.mapa.getDensidad(adyacente) + 1) +
-								nodoMenorCosto.getCostoAcumulado();
-						if (nodo.tieneCostoInfinito() || 
-								costo < nodo.getCostoAcumulado())
-						{
-							nodo.SetPredecesor(nodoMenorCosto.getPunto());
-							nodo.SetCostoAcumulado(costo);
-						}
-						colaNodosExpandidos.remove(nodo);
-						colaNodosExpandidos.add(nodo);
-						map.put(adyacente, nodo);
+				Nodo nodo = GetNodoByPunto(adyacente, map);
+				if (!nodo.fueVisitado())
+				{
+					int costo = COSTO_BASE * (this.mapa.getDensidad(adyacente) + 1) +
+						nodoMenorCosto.getCostoAcumulado();
+					if (nodo.tieneCostoInfinito() || costo < nodo.getCostoAcumulado())
+					{
+						nodo.SetPredecesor(nodoMenorCosto.getPunto());
+						nodo.SetCostoAcumulado(costo);
 					}
-				//}
+					colaNodosExpandidos.remove(nodo);
+					colaNodosExpandidos.add(nodo);
+					map.put(adyacente, nodo);
+				}
 			}
 			
-			nodoMenorCosto =  colaNodosExpandidos.remove(); //GetNodoMenorCosto(colaNodosExpandidos);
-			if (nodoMenorCosto != null){
-				nodoMenorCosto.Visitar();
-				nodosVisitados.add(nodoMenorCosto);
-			}
+			nodoMenorCosto =  colaNodosExpandidos.remove();
+			
+			//Los visitados son los que ya tienen el costo mínimo establecido desde el origen
+			if (nodoMenorCosto != null)
+				nodoMenorCosto.Visitar();			
 		}
 		
 		if (nodoMenorCosto != null)
-		{
 			listaPuntos = this.ObtenerCamino(map,nodoMenorCosto);
-		}	
 
-		
-		//cmc.dibujarCamino(listaauxi,Color.magenta);
 		return listaPuntos;
 	}
 
@@ -137,44 +109,11 @@ public class CmcDemo {
 		return puntos;
 	}
 
-	private cmc.Nodo GetNodoMenorCosto(List<cmc.Nodo> nodosCalculados) {
-		Nodo nodoMenorCosto = null;
-		for (Nodo nodo : nodosCalculados)
-		{
-			if (!nodo.fueVisitado() && 
-					(nodoMenorCosto == null || 
-					nodo.getCostoAcumulado() < nodoMenorCosto.getCostoAcumulado()))
-				nodoMenorCosto = nodo;
-		}
-		
-		return nodoMenorCosto;
-	}
-
-	private cmc.Nodo GetNodoByPunto(Punto punto, PriorityQueue<Nodo> nodos,Map<Punto, Nodo> map) {
+	private cmc.Nodo GetNodoByPunto(Punto punto,Map<Punto, Nodo> map) {
 		Nodo nodoObtenido = map.get(punto);
 		if (nodoObtenido == null)
 			nodoObtenido = new Nodo(punto);
-		
 		return nodoObtenido;
-		/*
-		for (Nodo nodo : nodos)
-		{
-			if (nodo.getPunto().igual(punto))
-				return nodo;
-		}
-		//No está, lo creo y agrego
-		Nodo nodo = new Nodo(punto);
-		nodos.add(nodo);
-		return nodo;*/
-	}
-
-	private boolean PuntoFueVisitado(Punto punto,List<Nodo> nodos) {
-		for(Nodo nodo : nodos)
-		{
-			if (nodo.getPunto().igual(punto))
-				return nodo.fueVisitado();
-		}
-		return false;
 	}
 
 	private List<Punto> GetAdyacentes(Punto a) {
