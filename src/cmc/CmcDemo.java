@@ -10,11 +10,28 @@ import java.awt.Color;
  * No contempla las densidades definidas en la matriz (mapa)
  */
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+
 import graficos.Punto;
 import mapa.MapaInfo;
 import cmc.Nodo;
+
+class cmpNodos implements Comparator<Nodo> {
+    @Override
+    public int compare(Nodo n1, Nodo n2) {
+        if (n1.getCostoAcumulado() < n2.getCostoAcumulado())
+        	return -1;
+        if (n1.getCostoAcumulado() > n2.getCostoAcumulado())
+        	return 1;
+        return 0;
+    }
+}
+
 
 public class CmcDemo {
 	private MapaInfo mapa;
@@ -46,62 +63,76 @@ public class CmcDemo {
 	//Si no existe un camino de a a b, devuelve una lista vacía
 	private List<Punto> expandirPuntosContiguos(Punto a, Punto b) {
 		List<Punto> listaPuntos = new ArrayList<Punto>();
-		List<Nodo> nodosCalculados = new ArrayList<Nodo>();
+		//List<Nodo> nodosCalculados = new ArrayList<Nodo>();
+		cmpNodos comparador = new cmpNodos();
+		PriorityQueue<Nodo> colaNodosExpandidos = new PriorityQueue<Nodo>(comparador);
+		PriorityQueue<Nodo> nodosVisitados = new PriorityQueue<Nodo>(comparador);
+		Map<Punto, Nodo> map = new HashMap<Punto,Nodo>();
+		
 		
 		//Agrego el punto de inicio a la lista de nodos
 		int costoInicial = COSTO_BASE * (this.mapa.getDensidad(a) + 1);
-		nodosCalculados.add(new Nodo(a,a,costoInicial,true));
-		Nodo nodoMenorCosto = nodosCalculados.get(0);
+		Nodo nodoMenorCosto = new Nodo(a,a,costoInicial,true);
+		map.put(a, nodoMenorCosto);
+		nodosVisitados.add(nodoMenorCosto);
 
 		//List<Punto> listaauxi = new ArrayList<Punto>();
-		
+		//int i = 0;
 		//Mientras no llegué al punto final o mientras no visité todos los posibles
 		while (nodoMenorCosto != null && !nodoMenorCosto.getPunto().igual(b))
 		{
 			//listaauxi.add(nodoMenorCosto.getPunto());
-			//System.out.println("(" + nodoMenorCosto.getPunto().x + ","+ nodoMenorCosto.getPunto().y+ ")" 
-			//+ " " + this.mapa.getDensidad(nodoMenorCosto.getPunto()));
+			System.out.println("(" + nodoMenorCosto.getPunto().x + ","+ nodoMenorCosto.getPunto().y+ ")" 
+			+ " " + this.mapa.getDensidad(nodoMenorCosto.getPunto()) + " " + nodoMenorCosto.getCostoAcumulado());
 
 			List<Punto> adyacentes = this.GetAdyacentes(nodoMenorCosto.getPunto());
 			
 			for (Punto adyacente : adyacentes)
 			{
-				if (!PuntoFueVisitado(adyacente,nodosCalculados))
-				{
-					Nodo nodo = GetNodoByPunto(adyacente, nodosCalculados);
-					int costo = COSTO_BASE * (this.mapa.getDensidad(adyacente) + 1) +
-							nodoMenorCosto.getCostoAcumulado();
-					if (nodo.tieneCostoInfinito() || 
-							costo < nodo.getCostoAcumulado())
-					{
-						nodo.SetPredecesor(nodoMenorCosto.getPunto());
-						nodo.SetCostoAcumulado(costo);
+				//if (!PuntoFueVisitado(adyacente,colaNodosExpandidos))
+				//{
+					Nodo nodo = GetNodoByPunto(adyacente, colaNodosExpandidos, map);
+					if (!nodo.fueVisitado()){
+						int costo = COSTO_BASE * (this.mapa.getDensidad(adyacente) + 1) +
+								nodoMenorCosto.getCostoAcumulado();
+						if (nodo.tieneCostoInfinito() || 
+								costo < nodo.getCostoAcumulado())
+						{
+							nodo.SetPredecesor(nodoMenorCosto.getPunto());
+							nodo.SetCostoAcumulado(costo);
+						}
+						colaNodosExpandidos.remove(nodo);
+						colaNodosExpandidos.add(nodo);
+						map.put(adyacente, nodo);
 					}
-				}
+				//}
 			}
 			
-			nodoMenorCosto = GetNodoMenorCosto(nodosCalculados);
-			if (nodoMenorCosto != null)
+			nodoMenorCosto =  colaNodosExpandidos.remove(); //GetNodoMenorCosto(colaNodosExpandidos);
+			if (nodoMenorCosto != null){
 				nodoMenorCosto.Visitar();
+				nodosVisitados.add(nodoMenorCosto);
+			}
 		}
 		
 		if (nodoMenorCosto != null)
 		{
-			listaPuntos = this.ObtenerCamino(nodosCalculados,nodoMenorCosto);
+			listaPuntos = this.ObtenerCamino(map,nodoMenorCosto);
 		}	
 
+		
 		//cmc.dibujarCamino(listaauxi,Color.magenta);
 		return listaPuntos;
 	}
 
-	private List<Punto> ObtenerCamino(List<cmc.Nodo> nodos, cmc.Nodo nodoFin) {
+	private List<Punto> ObtenerCamino(Map<Punto, Nodo> nodos, cmc.Nodo nodoFin) {
 		List<Punto> puntos = new ArrayList<Punto>();
 		Nodo nodoActual = nodoFin;
 		puntos.add(nodoActual.getPunto());
 		while (!nodoActual.getPunto().igual(nodoActual.getPredecesor()))
 		{
 			puntos.add(nodoActual.getPunto());
-			nodoActual = this.GetNodoByPunto(nodoActual.getPredecesor(), nodos);
+			nodoActual = nodos.get(nodoActual.getPredecesor());
 		}
 		return puntos;
 	}
@@ -119,7 +150,13 @@ public class CmcDemo {
 		return nodoMenorCosto;
 	}
 
-	private cmc.Nodo GetNodoByPunto(Punto punto, List<cmc.Nodo> nodos) {
+	private cmc.Nodo GetNodoByPunto(Punto punto, PriorityQueue<Nodo> nodos,Map<Punto, Nodo> map) {
+		Nodo nodoObtenido = map.get(punto);
+		if (nodoObtenido == null)
+			nodoObtenido = new Nodo(punto);
+		
+		return nodoObtenido;
+		/*
 		for (Nodo nodo : nodos)
 		{
 			if (nodo.getPunto().igual(punto))
@@ -128,7 +165,7 @@ public class CmcDemo {
 		//No está, lo creo y agrego
 		Nodo nodo = new Nodo(punto);
 		nodos.add(nodo);
-		return nodo;
+		return nodo;*/
 	}
 
 	private boolean PuntoFueVisitado(Punto punto,List<Nodo> nodos) {
