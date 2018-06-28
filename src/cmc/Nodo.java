@@ -61,6 +61,12 @@ public class Nodo {
 	public boolean tieneCostoInfinito() {
 		return this.CostoInfinito;
 	}
+	public int getDistancia(int x, int y) {
+		int distancia= Math.abs(this.PuntoActual.x-x)+Math.abs(this.PuntoActual.y-y);
+		
+		return distancia;
+		
+	}
 
 }
 
@@ -69,8 +75,7 @@ class cmpNodos implements Comparator<Nodo> {
     public int compare(Nodo n1, Nodo n2) {
         if (n1.getCostoAcumulado() < n2.getCostoAcumulado())
         	return -1;
-        if (n1.getCostoAcumulado() > n2.getCostoAcumulado())
+        else
         	return 1;
-        return 0;
     }
 }

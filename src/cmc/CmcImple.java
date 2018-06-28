@@ -1,4 +1,5 @@
 package cmc;
+import java.lang.Exception;
 /**
  * Subclase de CmcSC que implementa a CmcTDA
  * El m�todo run es invocado por el bot�n iniciar.
@@ -15,9 +16,15 @@ import tda.CmcSC;
 public class CmcImple extends CmcSC {
 	
 	private MapaInfo mapa;
-
+	
 	public void run(MapaInfo mapa) {
-		this.mapa = mapa;
-		new CmcDemo(mapa, this);
+		
+		try {this.mapa = mapa;
+		new CmcDemo(mapa, this);}
+		catch(Exception e) {
+			mapa.enviarMensaje("No se encontro camino");
+		}
 	}
-}
+	}
+
+	

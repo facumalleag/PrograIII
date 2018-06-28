@@ -1,4 +1,5 @@
 package cmc;
+import java.lang.Exception;
 import java.awt.Color;
 /**
  * Obtiene la lista de los puntos marcados en la matriz (mapa)
@@ -27,6 +28,7 @@ public class CmcDemo {
 	private CmcImple cmc;
 	private static final int COSTO_BASE = 10;
 	private static final int DENSIDAD_INQUEBRANTABLE = 4;
+	private static final int COSTO_DIAGONAL = 14;
 	
 	public CmcDemo(MapaInfo mapa, CmcImple cmc) {
 		this.mapa = mapa;
@@ -50,7 +52,9 @@ public class CmcDemo {
 	}
 	
 	//Post: Si no existe un camino de a a b, devuelve una lista vacía
-	private List<Punto> expandirPuntosContiguos(Punto a, Punto b) {
+	
+	private List<Punto> expandirPuntosContiguos(Punto a, Punto b)   {
+		
 		List<Punto> listaPuntos = new ArrayList<Punto>();
 		cmpNodos comparador = new cmpNodos();
 		PriorityQueue<Nodo> colaNodosExpandidos = new PriorityQueue<Nodo>(comparador);
@@ -64,7 +68,7 @@ public class CmcDemo {
 		//Mientras no llegué al punto final o mientras no visité todos los posibles
 		while (nodoMenorCosto != null && !nodoMenorCosto.getPunto().igual(b))
 		{
-			List<Punto> adyacentes = this.GetAdyacentes(nodoMenorCosto.getPunto());
+			List<Punto> adyacentes = this.GetAdyacentes(nodoMenorCosto.getPunto(),map);
 			
 			for (Punto adyacente : adyacentes)
 			{
@@ -72,8 +76,12 @@ public class CmcDemo {
 				if (!nodo.fueVisitado())
 				{
 					int costo = COSTO_BASE * (this.mapa.getDensidad(adyacente) + 1) +
-						nodoMenorCosto.getCostoAcumulado();
-					if (nodo.tieneCostoInfinito() || costo < nodo.getCostoAcumulado())
+							nodoMenorCosto.getCostoAcumulado()+ nodoMenorCosto.getDistancia(a.x, a.y);
+					if (Math.abs(nodoMenorCosto.getPunto().x-adyacente.x)==1 && Math.abs(nodoMenorCosto.getPunto().y-adyacente.y)==1){
+						costo=costo+COSTO_DIAGONAL;
+						
+					}
+					if (costo < nodo.getCostoAcumulado()||nodo.tieneCostoInfinito())
 					{
 						nodo.SetPredecesor(nodoMenorCosto.getPunto());
 						nodo.SetCostoAcumulado(costo);
@@ -95,7 +103,12 @@ public class CmcDemo {
 			listaPuntos = this.ObtenerCamino(map,nodoMenorCosto);
 
 		return listaPuntos;
-	}
+		}
+		
+	
+	
+
+
 
 	private List<Punto> ObtenerCamino(Map<Punto, Nodo> nodos, cmc.Nodo nodoFin) {
 		List<Punto> puntos = new ArrayList<Punto>();
@@ -109,14 +122,14 @@ public class CmcDemo {
 		return puntos;
 	}
 
-	private cmc.Nodo GetNodoByPunto(Punto punto,Map<Punto, Nodo> map) {
+	private Nodo GetNodoByPunto(Punto punto,Map<Punto, Nodo> map) {
 		Nodo nodoObtenido = map.get(punto);
 		if (nodoObtenido == null)
 			nodoObtenido = new Nodo(punto);
 		return nodoObtenido;
 	}
 
-	private List<Punto> GetAdyacentes(Punto a) {
+	private List<Punto> GetAdyacentes(Punto a,Map<Punto, Nodo> map) {
 		List<Punto> adyacentes = new ArrayList<Punto>();
 		List<Punto> puntosEvaluados = new ArrayList<Punto>();
 		int x = a.x;
@@ -124,9 +137,9 @@ public class CmcDemo {
 		
 		for (int i = x-1; i < x+2; i++)
 		{
-			for (int o = y-1; o < y+2; o++)
+			for (int j = y-1; j < y+2; j++)
 			{
-				Punto punto = new Punto(i,o);
+				Punto punto = new Punto(i,j);
 				if (!punto.igual(a))
 					puntosEvaluados.add(punto);
 			}

@@ -1,5 +1,4 @@
-/mapa/
 /cmc/
-/vista/
-/tda/
-/graficos/
+/app/
+/.classpath
+/.project
